@@ -1,0 +1,19 @@
+#fpsSlider {
+    width: 100;
+  }
+
+  #container {
+    width: 960px;
+    margin: 0 auto;
+    text-align: center
+  }
+
+  #grid {
+    border: 1px solid #999;
+    display: inline-block;
+  }
+  
+  #grid input {
+    margin: 0;
+    padding: 0;
+  }
