@@ -1,3 +1,55 @@
+function Grid(width, height) {
+
+  this.width = width;
+  this.height = height;
+  this.space = new Array(width * height);
+}
+
+Grid.prototype.get = function(vector) {
+  
+  return this.space[vector.y * this.width + vector.x];
+};
+
+Grid.prototype.set = function(vector, value){
+   
+   this.space[vector.y * this.width + vector.x] = value;
+};
+
+
+/**
+ * Iterate over all items
+ *
+ * @param  {Function} fn Callback; signature: fn(value, vectorXY)
+ * @return {void}
+ */
+Grid.prototype.forEach = function(fn){
+   
+   for (var col = 0; col < this.width; col++)
+      for (var row = 0; row < this.height; row++) {
+
+        var value = this.space[row * this.width + col];
+        fn(value, new Vector(col, row));
+      }
+};
+
+/**
+ * Data type for cartesian coordinates
+ * @param {Integer} x
+ * @param {Integer} y
+ */
+function Vector(x, y) {
+
+  this.x = x;
+  this.y = y;
+}
+
+Vector.prototype.plus = function(other){
+   
+   return new Vector(this.x + other.x, this.y + other.y);
+};
+
+
+
 // Settings
 var size = 30;
 var fps = 20;
