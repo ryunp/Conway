@@ -80,7 +80,7 @@ var Views = {
         .attr('x', (d, colIdx, rowIdx) => colIdx * Views.svg.cellSize )
         .attr('y', (d, colIdx, rowIdx) => rowIdx * Views.svg.cellSize )
         .attr('width', Views.svg.cellSize).attr('height', Views.svg.cellSize)
-        .on('click', function(d, x, y) {
+        .on('mouseup', function(d, x, y) {
 
             d3.select(this)
             .attr('fill', grid.toggle(new Vector(x,y)) ? 'black' : 'white');
