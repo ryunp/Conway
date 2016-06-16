@@ -1,3 +1,9 @@
+/**
+ * Object to encapsulate double dimension array and accessors
+ * 
+ * @param {int} width  Number of columns
+ * @param {int} height Number of rows
+ */
 function Grid(width, height) {
 
   this.width = width;
@@ -8,23 +14,45 @@ function Grid(width, height) {
     this.space[i] = new Array(width);
 }
 
-Grid.STATES = {
-  'dead': 0,
-  'alive': 1
+
+/**
+ * Unused enumeration for cell states
+ * @type {Object}
+ */
+Grid.States = {
+  'DEAD': false,
+  'ALIVE': true
 };
 
 
+/**
+ * Set cell value
+ * @param {Vector} vector X,Y coordinate object
+ * @param {value} value   New value for cell
+ */
 Grid.prototype.set = function set(vector, value) {
 
   this.space[vector.y][vector.x] = value;
 };
 
 
+/**
+ * Get cell value
+ * @param  {Vector} vector X,Y coordinate object
+ * @return {boolean}       Value of cell
+ */
 Grid.prototype.get = function get(vector) {
 
   return this.space[vector.y][vector.x];
 };
 
+
+/**
+ * Switches cell's state true/false
+ * 
+ * @param  {Vector} vector X,Y coordinate object
+ * @return {boolean}       The value after toggling
+ */
 Grid.prototype.toggle = function toggle(vector) {
 
   var state = this.get(vector);
@@ -36,14 +64,19 @@ Grid.prototype.toggle = function toggle(vector) {
 }
 
 
-// Uses callback return to set values
-Grid.prototype.fill = function fill(filler) {
+/**
+ * Iterates through each cell assigning given function's return value
+ * 
+ * @param  {Function} fn  Function to set cells' value
+ * @param  {Object}   ctx Context for 'this'
+ */
+Grid.prototype.fill = function fill(fn, ctx) {
 
   try {
 
     for (var y = 0; y < this.height; y++)
       for (var x = 0; x < this.width; x++)
-        this.space[y][x] = filler();
+        this.space[y][x] = fn.call(ctx);
   
   } catch (e) {
 
@@ -52,6 +85,13 @@ Grid.prototype.fill = function fill(filler) {
 };
 
 
+/**
+ * Iterates through each cell and calls a given function with cell value and 
+ * coordinate vector as arguments
+ * 
+ * @param  {Function} fn  Function to call on each cell
+ * @param  {Object}   ctx Context for 'this'
+ */
 Grid.prototype.forEach = function forEach(fn, ctx) {
 
   try {
@@ -67,6 +107,13 @@ Grid.prototype.forEach = function forEach(fn, ctx) {
 
 };
 
+
+/**
+ * Count number true value cells within 1 block radius including diagonals
+ * 
+ * @param  {Vector} vector X,Y coordinate object
+ * @return {int}           Count of neighboring cells with true values
+ */
 Grid.prototype.neighbors = function neighbors(vector) {
 
   var count = 0;
