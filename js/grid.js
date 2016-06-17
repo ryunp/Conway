@@ -16,23 +16,16 @@ function Grid(width, height) {
 
 
 /**
- * Unused enumeration for cell states
- * @type {Object}
- */
-Grid.States = {
-  'DEAD': false,
-  'ALIVE': true
-};
-
-
-/**
  * Set cell value
  * @param {Vector} vector X,Y coordinate object
  * @param {value} value   New value for cell
  */
 Grid.prototype.set = function set(vector, value) {
 
-  this.space[vector.y][vector.x] = value;
+  if (this.containsCoords(vector))
+    this.space[vector.y][vector.x] = value;
+  else
+    return null;
 };
 
 
@@ -42,26 +35,12 @@ Grid.prototype.set = function set(vector, value) {
  * @return {boolean}       Value of cell
  */
 Grid.prototype.get = function get(vector) {
-
-  return this.space[vector.y][vector.x];
-};
-
-
-/**
- * Switches cell's state true/false
- * 
- * @param  {Vector} vector X,Y coordinate object
- * @return {boolean}       The value after toggling
- */
-Grid.prototype.toggle = function toggle(vector) {
-
-  var state = this.get(vector);
-  var newState = !state;
+  if (this.containsCoords(vector))
+    return this.space[vector.y][vector.x];
+  else
+    return null;
   
-  this.set(vector, newState);
-
-  return newState;
-}
+};
 
 
 /**
@@ -109,32 +88,12 @@ Grid.prototype.forEach = function forEach(fn, ctx) {
 
 
 /**
- * Count number true value cells within 1 block radius including diagonals
- * 
+ * Checks if coordinates are within grid bounds
  * @param  {Vector} vector X,Y coordinate object
- * @return {int}           Count of neighboring cells with true values
+ * @return {boolean}           true or false
  */
-Grid.prototype.neighbors = function neighbors(vector) {
+Grid.prototype.containsCoords = function(vector) {
 
-  var count = 0;
-
-  for (var yOffset = -1; yOffset <= 1; yOffset++) {
-    for (var xOffset = -1; xOffset <= 1; xOffset++) {
-
-      // Skip out of array bounds
-      if ((vector.y + yOffset) < 0 || this.height <= (vector.y + yOffset) ||
-          (vector.x + xOffset) < 0 || this.width <= (vector.x + xOffset))
-        continue;
-
-      // Skip self
-      if (xOffset == 0 && yOffset == 0)
-        continue;
-
-
-      if (this.space[vector.y + yOffset][vector.x + xOffset] == Grid.States.ALIVE)
-        count++;
-    }
-  }
-
-  return count;
+  return vector.x >= 0 && vector.x < this.width &&
+    vector.y >= 0 && vector.y < this.height;
 };

@@ -52,13 +52,13 @@ function setView(type) {
   view = Views[type];
   d3.select('#display').selectAll('*').remove();
   view.init('#display', grid);
-  view.update('#display', grid);
+  view.update(grid);
 }
 
 function reset() {
 
   randomizeGridData(grid);
-  view.update('#display', grid);  
+  view.update(grid);  
 }
 
 
@@ -87,7 +87,7 @@ function stop() {
 function turn() {
 
   Conway.nextGeneration(grid);
-  view.update('#display', grid);
+  view.update(grid);
 }
 
 
@@ -128,5 +128,3 @@ function randomizeGridData(grid) {
     return array[Math.floor(Math.random() * array.length)];
   }
 }
-
-
