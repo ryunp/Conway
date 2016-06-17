@@ -44,18 +44,18 @@ var Views = {
     }
   },
 
-  'svg': {
+  'svg': (function() {
 
-    cellSize: 15,
+    var cellSize = 15;
 
-    'init': function init(rootHTML, grid) {
+    function init(rootHTML, grid) {
 
       d3.select(rootHTML).append('svg')
-       .attr('width', Views.svg.cellSize * grid.width)
-       .attr('height', Views.svg.cellSize * grid.height);
-    },
+       .attr('width', cellSize * grid.width)
+       .attr('height', cellSize * grid.height);
+    }
 
-    'update': function update(rootHTML, grid) {
+    function update(rootHTML, grid) {
 
       var svg = d3.select(rootHTML).select('svg');
       svg.selectAll('*').remove(); // Recreating rect's each time?
@@ -77,9 +77,9 @@ var Views = {
       // Check into 'enter' state and create lacking view items (each col)
       cells.enter()
         .append('rect')
-        .attr('x', (d, colIdx, rowIdx) => colIdx * Views.svg.cellSize )
-        .attr('y', (d, colIdx, rowIdx) => rowIdx * Views.svg.cellSize )
-        .attr('width', Views.svg.cellSize).attr('height', Views.svg.cellSize)
+        .attr('x', (d, colIdx, rowIdx) => colIdx * cellSize )
+        .attr('y', (d, colIdx, rowIdx) => rowIdx * cellSize )
+        .attr('width', cellSize).attr('height', cellSize)
         .on('mouseup', function(d, x, y) {
 
             d3.select(this)
@@ -89,5 +89,7 @@ var Views = {
       // Update view values with data
       cells.attr('fill', (d) => d ? 'black' : 'white' );
     }
-  }
+
+    return {init, update};
+  })()
 }

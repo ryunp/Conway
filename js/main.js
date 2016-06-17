@@ -15,6 +15,7 @@ var grid = new Grid(sideLength * 1.5, sideLength);
 
 function init() {
 
+  console.log(Views);
   randomizeGridData(grid);
   initUI();
   updateFps(fps);
