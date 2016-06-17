@@ -98,7 +98,7 @@ Grid.prototype.forEach = function forEach(fn, ctx) {
 
     for (var y = 0; y < this.height; y++)
       for (var x = 0; x < this.width; x++)
-        fn.call(ctx, this.grid[y][x], new Vector(x, y));
+        fn.call(ctx, this.space[y][x], new Vector(x, y));
       
   } catch (e) {
 
@@ -131,7 +131,7 @@ Grid.prototype.neighbors = function neighbors(vector) {
         continue;
 
 
-      if (this.space[vector.y + yOffset][vector.x + xOffset] == 1)
+      if (this.space[vector.y + yOffset][vector.x + xOffset] == Grid.States.ALIVE)
         count++;
     }
   }

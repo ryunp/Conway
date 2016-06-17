@@ -1,34 +1,38 @@
+/**
+ * Rules for conway's GoL
+ * @type {Object}
+ */
 var Conway = {
 
-  nextGeneration: function nextGeneration(grid) {
+  /**
+   * Provides the next step of life
+   * @param  {Grid} curGen Grid object
+   * @return {Grid}        Same Grid object given
+   */
+  nextGeneration: function nextGeneration(curGen) {
 
-  var newGrid = new Grid(grid.width, grid.height);
+    var nextGen = new Grid(curGen.width, curGen.height);
 
-  for (var y = 0; y < newGrid.height; y++) {
-    for (var x = 0; x < newGrid.width; x++) {
+    curGen.forEach( (state, vector) => {
 
-        var v = new Vector(x, y);
-        var neighbors = grid.neighbors(v);
+      var neighbors = curGen.neighbors(vector);
 
-        // Stay alive or revive if 3 beighbors
-        if (neighbors == 3) {
-          newGrid.set(v, true);
-          continue;
-        }
-
-        // Stay alive if 2 neighbors
-        if (grid.get(v) == true && (neighbors == 2)) {
-          newGrid.set(v, true);
-          continue;
-        }
-
-        // Stay dead or die
-        newGrid.set(v, false);
+      // Stay alive or revive if 3 neighbors
+      if (neighbors == 3) {
+        nextGen.set(vector, Grid.States.ALIVE);
+        return;
       }
-    }
 
-    grid.space = newGrid.space;
+      // Stay alive if 2 neighbors
+      if (state == Grid.States.ALIVE && (neighbors == 2)) {
+        nextGen.set(vector, Grid.States.ALIVE);
+        return;
+      }
 
-    return grid; 
+      // Stay dead or die
+      nextGen.set(vector, Grid.States.DEAD);
+    });
+
+    curGen.space = nextGen.space;
   }
 };

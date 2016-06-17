@@ -81,7 +81,7 @@ function stop() {
 
 function turn() {
 
-  grid = Conway.nextGeneration(grid);
+  Conway.nextGeneration(grid);
   view.update('#display', grid);
 }
 
