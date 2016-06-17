@@ -6,7 +6,7 @@
 
 var sideLength = 30;
 var fps = 20;
-var grid = new Grid(sideLength, sideLength);
+var grid = new Grid(sideLength * 1.5, sideLength);
 
 
 /**
@@ -15,31 +15,29 @@ var grid = new Grid(sideLength, sideLength);
 
 function init() {
 
-  randomizeData();
-  changeRendering('checkbox'); // init view 
-
-
-  /**
-   * UI Binding
-   */
-
-  var gridDisplay = document.querySelector('#grid');
-  document.querySelector('#start').addEventListener('click', start);
-  document.querySelector('#stop').addEventListener('click', stop);
-  document.querySelector('#next').addEventListener('click', turn);
-  document.querySelector('#reset').addEventListener('click', randomizeData);
-  var fpsSlider = document.querySelector('#fpsSlider');
-  fpsSlider.addEventListener('input', (e) => updateFps(e.target.value));
-  var fpsData = document.querySelector('#fpsData');
+  randomizeGridData(grid);
+  initUI();
   updateFps(fps);
 
-  var viewSelect = document.querySelector('#viewSelection');
-  viewSelect.addEventListener('change', (e) => changeRendering(e.target.value));
+  // Update inital display
+  setView('checkbox');
 
-  // Add views to dropdown
-  for (var view in Views)
-    viewSelect.insertAdjacentHTML('beforeend', '<option>' + view + '</option>');
 
+
+  function initUI() {
+  
+    var viewSelect = document.querySelector('#viewSelection');
+
+    document.querySelector('#start').addEventListener('click', start);
+    document.querySelector('#stop').addEventListener('click', stop);
+    document.querySelector('#next').addEventListener('click', turn);
+    document.querySelector('#reset').addEventListener('click', reset);
+    document.querySelector('#fpsSlider').addEventListener('input', (e) => updateFps(e.target.value));
+    viewSelect.addEventListener('change', (e) => setView(e.target.value));
+
+    for (var view in Views)
+      viewSelect.insertAdjacentHTML('beforeend', '<option>' + view + '</option>');
+  }
 }
 
 
@@ -48,12 +46,18 @@ function init() {
  * Display
  */
 
-function changeRendering(type) {
+function setView(type) {
 
   view = Views[type];
   d3.select('#display').selectAll('*').remove();
   view.init('#display', grid);
   view.update('#display', grid);
+}
+
+function reset() {
+
+  randomizeGridData(grid);
+  view.update('#display', grid);  
 }
 
 
@@ -105,7 +109,7 @@ function updateFps(newFps) {
 
   fps = newFps;
   refreshInterval = 1000 / fps;
-  fpsData.textContent = newFps;
+  document.querySelector('#fpsData').textContent = newFps;
 }
 
 
@@ -114,13 +118,10 @@ function updateFps(newFps) {
  * Misc
  */
 
-function randomizeData() {
+function randomizeGridData(grid) {
 
   grid.fill( () => randomElement([false, true]) );
-  console.log('s:', grid.space);
 
-
-  // Helper
   function randomElement(array) {
 
     return array[Math.floor(Math.random() * array.length)];
