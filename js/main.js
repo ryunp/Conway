@@ -15,30 +15,30 @@ var grid = new Grid(sideLength * 1.5, sideLength);
 
 function init() {
 
-  console.log(Views);
-  randomizeGridData(grid);
-  initUI();
-  updateFps(fps);
+	console.log(Views);
+	randomizeGridData(grid);
+	initUI();
+	updateFps(fps);
 
-  // Update inital display
-  setView('checkbox');
+	// Update inital display
+	setView('svg_noD3');
 
 
 
-  function initUI() {
-  
-    var viewSelect = document.querySelector('#viewSelection');
+	function initUI() {
+	
+		var viewSelect = document.querySelector('#viewSelection');
 
-    document.querySelector('#start').addEventListener('click', start);
-    document.querySelector('#stop').addEventListener('click', stop);
-    document.querySelector('#next').addEventListener('click', turn);
-    document.querySelector('#reset').addEventListener('click', reset);
-    document.querySelector('#fpsSlider').addEventListener('input', (e) => updateFps(e.target.value));
-    viewSelect.addEventListener('change', (e) => setView(e.target.value));
+		document.querySelector('#start').addEventListener('click', start);
+		document.querySelector('#stop').addEventListener('click', stop);
+		document.querySelector('#next').addEventListener('click', turn);
+		document.querySelector('#reset').addEventListener('click', resetGrid);
+		document.querySelector('#fpsSlider').addEventListener('input', e => updateFps(e.target.value));
+		viewSelect.addEventListener('change', e => setView(e.target.value));
 
-    for (var view in Views)
-      viewSelect.insertAdjacentHTML('beforeend', '<option>' + view + '</option>');
-  }
+		for (var view in Views)
+			viewSelect.insertAdjacentHTML('beforeend', `<option value=${view}>${view}</option>`);
+	}
 }
 
 
@@ -47,18 +47,25 @@ function init() {
  * Display
  */
 
-function setView(type) {
+function setView(name) {
 
-  view = Views[type];
-  d3.select('#display').selectAll('*').remove();
-  view.init('#display', grid);
-  view.update(grid);
+	var rootEl = document.querySelector('#display');
+	var viewSelect = document.querySelector('#viewSelection');
+
+	while (rootEl.firstChild)
+		rootEl.removeChild(rootEl.firstChild);
+
+	viewSelect.value = name;
+	view = Views[name];
+	view.init(rootEl, grid);
+	view.update(grid);
 }
 
-function reset() {
 
-  randomizeGridData(grid);
-  view.update(grid);  
+function resetGrid() {
+
+	randomizeGridData(grid);
+	view.update(grid);  
 }
 
 
@@ -72,45 +79,45 @@ var timer, prevTime, refreshInterval;
 
 function start() {
 
-  if (! timer)
-    lifeLoop();
+	if (! timer)
+		lifeLoop();
 }
 
 
 function stop() {
 
-  cancelAnimationFrame(timer);
-  timer = null;
+	cancelAnimationFrame(timer);
+	timer = null;
 }
 
 
 function turn() {
 
-  Conway.nextGeneration(grid);
-  view.update(grid);
+	Conway.nextGeneration(grid);
+	view.update(grid);
 }
 
 
 function lifeLoop(timeStamp) {
 
-  if (!prevTime)
-    prevTime = timeStamp;
+	if (!prevTime)
+		prevTime = timeStamp;
 
-  if (timeStamp - prevTime > refreshInterval) {
+	if (timeStamp - prevTime > refreshInterval) {
 
-    turn();
-    prevTime = timeStamp;
-  }
-  
-  timer = requestAnimationFrame(lifeLoop);
+		turn();
+		prevTime = timeStamp;
+	}
+	
+	timer = requestAnimationFrame(lifeLoop);
 }
 
 
 function updateFps(newFps) {
 
-  fps = newFps;
-  refreshInterval = 1000 / fps;
-  document.querySelector('#fpsData').textContent = newFps;
+	fps = newFps;
+	refreshInterval = 1000 / fps;
+	document.querySelector('#fpsData').textContent = newFps;
 }
 
 
@@ -121,10 +128,10 @@ function updateFps(newFps) {
 
 function randomizeGridData(grid) {
 
-  grid.fill( () => randomElement([false, true]) );
+	grid.fill( () => randomElement([false, true]) );
 
-  function randomElement(array) {
+	function randomElement(array) {
 
-    return array[Math.floor(Math.random() * array.length)];
-  }
+		return array[Math.floor(Math.random() * array.length)];
+	}
 }

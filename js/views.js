@@ -2,13 +2,13 @@ var Views = {
 
   'checkbox': (function() {
     
-    var container;
+    var baseEl;
 
 
     function init(rootHTML) {
 
       // Create base view element
-      container = d3.select(rootHTML).append('table');
+      baseEl = d3.select(rootHTML).append('table');
     }
 
 
@@ -16,7 +16,7 @@ var Views = {
 
       /* Handle Rows */
       // Capture result of view/data staging (list of rows)
-      var rows = container.selectAll('tr')
+      var rows = baseEl.selectAll('tr')
         .data(grid.space);
       
       // Check into 'enter' state and create lacking view items (each row)
@@ -54,16 +54,77 @@ var Views = {
   })(),
 
 
+  'checkbox_noD3': (function() {
+		
+		var cellSize = 15;
+		var baseEl;
+
+
+		function init(rootEl, grid) {
+
+			baseEl = document.createElement('table');
+			baseEl.setAttribute('width', cellSize * grid.width);
+			baseEl.setAttribute('height', cellSize * grid.height);
+
+			for (var y = 0; y < grid.height; y++) {
+
+				var tr = document.createElement('tr');
+
+				for (var x = 0; x < grid.width; x++) {
+
+					var td = document.createElement('td');
+					td.setAttribute('width', cellSize);
+					td.setAttribute('height', cellSize);
+					tr.appendChild(td);
+					
+					var cb = document.createElement('input');
+					cb.setAttribute('type', 'checkbox');
+					cb.addEventListener('click', toggleCell);
+					td.appendChild(cb);
+				}
+
+				baseEl.appendChild(tr);
+			}
+			rootEl.appendChild(baseEl);
+
+
+			function toggleCell(e) {
+
+				var cb = e.target,  td = cb.parentElement,  tr = td.parentElement;
+				var v = new Vector(td.cellIndex, tr.rowIndex);
+				var newState = !grid.get(v);
+
+				grid.set(v, newState);
+				cb.checked = newState;
+			}
+		}
+
+
+		function update(grid) {
+
+			grid.forEach((value, vector) => {
+
+				baseEl.children[vector.y].children[vector.x].childNodes[0]
+					.checked = value;
+			});
+
+		}
+
+
+		return {init, update};
+	})(),
+
+
 
   'svg': (function() {
 
-    var container;
+    var baseEl;
     var cellSize = 15;
 
 
     function init(rootHTML, grid) {
 
-      container = d3.select(rootHTML).append('svg')
+      baseEl = d3.select(rootHTML).append('svg')
        .attr('width', cellSize * grid.width)
        .attr('height', cellSize * grid.height);
     }
@@ -71,24 +132,17 @@ var Views = {
 
     function update(grid) {
 
-      // Derp. Since new arrays are assigned in Conway, data is recreated. :(
-      container.selectAll('*').remove();
+      baseEl.selectAll('*').remove();
 
-      /* Handle Rows */
-      // Capture result of view/data staging (list of rows)
-      var rows = container.selectAll('g')
+      var rows = baseEl.selectAll('g')
         .data(grid.space);
 
-      // Check into 'enter' state and create lacking view items (each row)
       rows.enter()
         .append('g');
 
-      /* Handle Cols */
-      // Capture result of view/data staging (list of cols)
       var cells = rows.selectAll('g')
         .data( (d) => d );
 
-      // Check into 'enter' state and create lacking view items (each col)
       cells.enter()
         .append('rect')
         .attr('x', (d, colIdx, rowIdx) => colIdx * cellSize )
@@ -105,7 +159,6 @@ var Views = {
             .attr('fill', newState ? 'black' : 'white');
         });
 
-      // Update view values with data
       cells.attr('fill', (d) => d ? 'black' : 'white' );
     }
 
@@ -118,22 +171,19 @@ var Views = {
   'svg_noD3': (function() {
 
     var cellSize = 15;
-    var container;
+    var baseEl;
 
 
     function init(rootHTML, grid) {
 
       var svgNS = "http://www.w3.org/2000/svg";
 
-      // Create base SVG element
-      container = document.createElementNS(svgNS, "svg");
-      container.setAttribute('width', cellSize * grid.width);
-      container.setAttribute('height', cellSize * grid.height);
+      baseEl = document.createElementNS(svgNS, "svg");
+      baseEl.setAttribute('width', cellSize * grid.width);
+      baseEl.setAttribute('height', cellSize * grid.height);
 
-      // Create cells
       for (var y = 0; y < grid.height; y++) {
 
-        // Group in SVG:G containers
         var g = document.createElementNS(svgNS, "g");
 
         for (var x = 0; x < grid.width; x++) {
@@ -150,11 +200,10 @@ var Views = {
           g.appendChild(rect);
         }
 
-        container.appendChild(g);
+        baseEl.appendChild(g);
       }
 
-      // Append SVG and G/Rects to root element
-      document.querySelector(rootHTML).appendChild(container);
+      rootHTML.appendChild(baseEl);
 
 
       function createClickCB(x, y) {
@@ -171,12 +220,11 @@ var Views = {
     }
 
 
-    // Utilizing built-in live collections, gg
     function update(grid) {
 
       grid.forEach((value, vector) => {
 
-        container.children[vector.y].children[vector.x]
+        baseEl.children[vector.y].children[vector.x]
           .style.fill = value ? 'black' : 'white';
       });
 
