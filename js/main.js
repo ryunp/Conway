@@ -4,10 +4,8 @@
  * Really only using D3 for selections. Can do fine without it.
  */
 
-var sideLength = 30;
+var scene;
 var fps = 20;
-var grid = new Grid(sideLength * 1.5, sideLength);
-
 
 /**
  * Init
@@ -15,14 +13,22 @@ var grid = new Grid(sideLength * 1.5, sideLength);
 
 function init() {
 
-	console.log(Views);
-	randomizeGridData(grid);
+
+	initScene();
 	initUI();
-	updateFps(fps);
 
-	// Update inital display
-	setView('svg_noD3');
 
+	function initScene() {
+
+		var el = document.querySelector('#display');
+		var grid = new Grid(45, 30);
+		
+		scene = new Scene(el, grid,	Views.checkbox);
+		
+		randomizeGridData(scene.grid);
+		scene.init();
+		scene.update();
+	}
 
 
 	function initUI() {
@@ -34,10 +40,12 @@ function init() {
 		document.querySelector('#next').addEventListener('click', turn);
 		document.querySelector('#reset').addEventListener('click', resetGrid);
 		document.querySelector('#fpsSlider').addEventListener('input', e => updateFps(e.target.value));
-		viewSelect.addEventListener('change', e => setView(e.target.value));
+		viewSelect.addEventListener('change', viewSelectChanged);
 
 		for (var view in Views)
 			viewSelect.insertAdjacentHTML('beforeend', `<option value=${view}>${view}</option>`);
+		
+		updateFps(fps);
 	}
 }
 
@@ -47,25 +55,18 @@ function init() {
  * Display
  */
 
-function setView(name) {
+function viewSelectChanged(e) {
 
-	var rootEl = document.querySelector('#display');
-	var viewSelect = document.querySelector('#viewSelection');
-
-	while (rootEl.firstChild)
-		rootEl.removeChild(rootEl.firstChild);
-
-	viewSelect.value = name;
-	view = Views[name];
-	view.init(rootEl, grid);
-	view.update(grid);
+	scene.clear();
+	scene.setView(Views[e.target.value]);
+	scene.init();
 }
 
 
 function resetGrid() {
 
-	randomizeGridData(grid);
-	view.update(grid);  
+	randomizeGridData(scene.grid);
+	scene.update();
 }
 
 
@@ -105,7 +106,9 @@ function lifeLoop(timeStamp) {
 
 	if (timeStamp - prevTime > refreshInterval) {
 
-		turn();
+		//turn();
+		Conway.nextGeneration(scene.grid);		
+		scene.update();
 		prevTime = timeStamp;
 	}
 	

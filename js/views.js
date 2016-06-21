@@ -1,236 +1,248 @@
-var Views = {
+var Views = Views || {};
 
-  'checkbox': (function() {
-    
-    var baseEl;
-
-
-    function init(rootHTML) {
-
-      // Create base view element
-      baseEl = d3.select(rootHTML).append('table');
-    }
-
-
-    function update(grid) {
-
-      /* Handle Rows */
-      // Capture result of view/data staging (list of rows)
-      var rows = baseEl.selectAll('tr')
-        .data(grid.space);
-      
-      // Check into 'enter' state and create lacking view items (each row)
-      rows.enter()
-        .append('tr');
-
-      /* Handle Cols */
-      // Capture result of view/data staging (list of cols)
-      var cells = rows.selectAll('td')
-        .data( (d) => d );
-
-      // Check into 'enter' state and create lacking view items (each col)
-      cells.enter()
-        .append('td')
-        .append('input')
-        .property('type', 'checkbox')
-        .on('click', function(d, x, y) {
-
-          var v = new Vector(x, y);
-          var newState = !grid.get(v);
-
-          grid.set(v, newState);
-
-          d3.select(this)
-            .property('checked', newState);
-        });
-
-      // Update view values with data
-      cells.select('input')
-        .property('checked', (d) => d);
-    }
-
-
-    return {init, update};
-  })(),
-
-
-  'checkbox_noD3': (function() {
+Views.checkbox = (function() {
 		
-		var cellSize = 15;
-		var baseEl;
 
 
-		function init(rootEl, grid) {
+	function init(rootEl, grid) {
 
-			baseEl = document.createElement('table');
-			baseEl.setAttribute('width', cellSize * grid.width);
-			baseEl.setAttribute('height', cellSize * grid.height);
-
-			for (var y = 0; y < grid.height; y++) {
-
-				var tr = document.createElement('tr');
-
-				for (var x = 0; x < grid.width; x++) {
-
-					var td = document.createElement('td');
-					td.setAttribute('width', cellSize);
-					td.setAttribute('height', cellSize);
-					tr.appendChild(td);
-					
-					var cb = document.createElement('input');
-					cb.setAttribute('type', 'checkbox');
-					cb.addEventListener('click', toggleCell);
-					td.appendChild(cb);
-				}
-
-				baseEl.appendChild(tr);
-			}
-			rootEl.appendChild(baseEl);
+		// Create base view element
+		baseEl = d3.select(rootEl).append('table');
+	}
 
 
-			function toggleCell(e) {
+	function update(rootEl, grid) {
 
-				var cb = e.target,  td = cb.parentElement,  tr = td.parentElement;
-				var v = new Vector(td.cellIndex, tr.rowIndex);
+		var rows = baseEl.selectAll('tr')
+			.data(grid.space);
+		
+		rows.enter()
+			.append('tr');
+
+		var cells = rows.selectAll('td')
+			.data( (d) => d );
+
+		cells.enter()
+			.append('td')
+			.append('input')
+			.property('type', 'checkbox')
+			.on('click', function(d, x, y) {
+
+				var v = new Vector(x, y);
 				var newState = !grid.get(v);
 
 				grid.set(v, newState);
-				cb.checked = newState;
-			}
-		}
 
-
-		function update(grid) {
-
-			grid.forEach((value, vector) => {
-
-				baseEl.children[vector.y].children[vector.x].childNodes[0]
-					.checked = value;
+				d3.select(this)
+					.property('checked', newState);
 			});
 
+		// Update view values with data
+		cells.select('input')
+			.property('checked', (d) => d);
+	}
+
+
+	return {init, update};
+})();
+
+
+
+Views.checkbox_noD3 = (function() {
+	
+	var cellSize = 15;
+
+
+	function init(rootEl, grid) {
+
+		// Create base Table element
+		baseEl = document.createElement('table');
+		baseEl.setAttribute('width', cellSize * grid.width);
+		baseEl.setAttribute('height', cellSize * grid.height);
+
+		for (var y = 0; y < grid.height; y++) {
+
+			var tr = document.createElement('tr');
+
+			for (var x = 0; x < grid.width; x++) {
+
+				var td = document.createElement('td');
+				td.setAttribute('width', cellSize);
+				td.setAttribute('height', cellSize);
+				tr.appendChild(td);
+				
+				var cb = document.createElement('input');
+				cb.setAttribute('type', 'checkbox');
+				cb.addEventListener('click', toggleCell);
+				td.appendChild(cb);
+			}
+
+			baseEl.appendChild(tr);
 		}
 
-
-		return {init, update};
-	})(),
-
+		// Append SVG and G/Rects to root element
+		rootEl.appendChild(baseEl);
 
 
-  'svg': (function() {
+		// Callback definition
+		function toggleCell(e) {
 
-    var baseEl;
-    var cellSize = 15;
+			var cb = e.target,  td = cb.parentElement,  tr = td.parentElement;
+			var v = new Vector(td.cellIndex, tr.rowIndex);
+			var newState = !grid.get(v);
 
-
-    function init(rootHTML, grid) {
-
-      baseEl = d3.select(rootHTML).append('svg')
-       .attr('width', cellSize * grid.width)
-       .attr('height', cellSize * grid.height);
-    }
-
-
-    function update(grid) {
-
-      baseEl.selectAll('*').remove();
-
-      var rows = baseEl.selectAll('g')
-        .data(grid.space);
-
-      rows.enter()
-        .append('g');
-
-      var cells = rows.selectAll('g')
-        .data( (d) => d );
-
-      cells.enter()
-        .append('rect')
-        .attr('x', (d, colIdx, rowIdx) => colIdx * cellSize )
-        .attr('y', (d, colIdx, rowIdx) => rowIdx * cellSize )
-        .attr('width', cellSize).attr('height', cellSize)
-        .on('mouseup', function(d, x, y) {
-
-          var v = new Vector(x, y);
-          var newState = !grid.get(v);
-
-          grid.set(v, newState);
-
-          d3.select(this)
-            .attr('fill', newState ? 'black' : 'white');
-        });
-
-      cells.attr('fill', (d) => d ? 'black' : 'white' );
-    }
+			grid.set(v, newState);
+			cb.checked = newState;
+		}
+	}
 
 
-    return {init, update};
-  })(),
+	// Utilizing built-in live collections, gg
+	function update(rootEl, grid) {
+
+		grid.forEach((value, vector) => {
+
+			baseEl.children[vector.y].children[vector.x].childNodes[0]
+				.checked = value;
+		});
+
+	}
+
+
+	return {init, update};
+})();
 
 
 
-  'svg_noD3': (function() {
 
-    var cellSize = 15;
-    var baseEl;
+Views.svg = (function() {
 
-
-    function init(rootHTML, grid) {
-
-      var svgNS = "http://www.w3.org/2000/svg";
-
-      baseEl = document.createElementNS(svgNS, "svg");
-      baseEl.setAttribute('width', cellSize * grid.width);
-      baseEl.setAttribute('height', cellSize * grid.height);
-
-      for (var y = 0; y < grid.height; y++) {
-
-        var g = document.createElementNS(svgNS, "g");
-
-        for (var x = 0; x < grid.width; x++) {
-
-          var rect = document.createElementNS(svgNS, "rect");
-
-          rect.setAttribute('width', cellSize);
-          rect.setAttribute('height', cellSize);
-          rect.setAttribute('x', x * cellSize);
-          rect.setAttribute('y', y * cellSize);
-          rect.style.fill = "#ff9999";
-          rect.addEventListener('mouseup', createClickCB(x, y));
-
-          g.appendChild(rect);
-        }
-
-        baseEl.appendChild(g);
-      }
-
-      rootHTML.appendChild(baseEl);
+	var cellSize = 15;
 
 
-      function createClickCB(x, y) {
+	function init(rootEl, grid) {
 
-        return function onCellClick(e) {
-          
-          var v = new Vector(x, y);
-          var newState = !grid.get(v);
-
-          grid.set(v, newState);
-          e.target.style.fill = newState ? 'black' : 'white';
-        }
-      }
-    }
+		baseEl = d3.select(rootEl).append('svg')
+		 .attr('width', cellSize * grid.width)
+		 .attr('height', cellSize * grid.height);
+	}
 
 
-    function update(grid) {
+	function update(rootEl, grid) {
 
-      grid.forEach((value, vector) => {
+		// Derp. Since new arrays are assigned in Conway, data is recreated. :(
+		baseEl.selectAll('*').remove();
 
-        baseEl.children[vector.y].children[vector.x]
-          .style.fill = value ? 'black' : 'white';
-      });
+		/* Handle Rows */
+		// Capture result of view/data staging (list of rows)
+		var rows = baseEl.selectAll('g')
+			.data(grid.space);
 
-    }
+		// Check into 'enter' state and create lacking view items (each row)
+		rows.enter()
+			.append('g');
+
+		/* Handle Cols */
+		// Capture result of view/data staging (list of cols)
+		var cells = rows.selectAll('g')
+			.data( (d) => d );
+
+		// Check into 'enter' state and create lacking view items (each col)
+		cells.enter()
+			.append('rect')
+			.attr('x', (d, colIdx, rowIdx) => colIdx * cellSize )
+			.attr('y', (d, colIdx, rowIdx) => rowIdx * cellSize )
+			.attr('width', cellSize).attr('height', cellSize)
+			.on('mouseup', function(d, x, y) {
+
+				var v = new Vector(x, y);
+				var newState = !grid.get(v);
+
+				grid.set(v, newState);
+
+				d3.select(this)
+					.attr('fill', newState ? 'black' : 'white');
+			});
+
+		// Update view values with data
+		cells.attr('fill', (d) => d ? 'black' : 'white' );
+	}
 
 
-    return {init, update};
-  })()
-}
+	return {init, update};
+})();
+
+
+
+Views.svg_noD3 = (function() {
+
+	var cellSize = 15;
+
+
+	function init(rootEl, grid) {
+
+		var svgNS = "http://www.w3.org/2000/svg";
+
+		// Create base SVG element
+		baseEl = document.createElementNS(svgNS, "svg");
+		baseEl.setAttribute('width', cellSize * grid.width);
+		baseEl.setAttribute('height', cellSize * grid.height);
+
+		// Create cells
+		for (var y = 0; y < grid.height; y++) {
+
+			// Group in SVG:G baseEls
+			var g = document.createElementNS(svgNS, "g");
+
+			for (var x = 0; x < grid.width; x++) {
+
+				var rect = document.createElementNS(svgNS, "rect");
+
+				rect.setAttribute('width', cellSize);
+				rect.setAttribute('height', cellSize);
+				rect.setAttribute('x', x * cellSize);
+				rect.setAttribute('y', y * cellSize);
+				rect.setAttribute('y', y * cellSize);
+				rect.style.fill = "#ff9999";
+				rect.addEventListener('mouseup', toggleCell);
+
+				g.appendChild(rect);
+			}
+
+			baseEl.appendChild(g);
+		}
+
+		// Append SVG and G/Rects to root element
+		rootEl.appendChild(baseEl);
+
+
+		// Callback definition
+		function toggleCell(e) {
+
+			var el = e.target;
+			var v = new Vector(
+				el.getAttribute('x') / cellSize,
+				el.getAttribute('y') / cellSize);
+
+			var newState = !grid.get(v);
+
+			grid.set(v, newState);
+			el.style.fill = newState ? 'black' : 'white';
+		}
+	}
+
+
+	// Utilizing built-in live collections, gg
+	function update(rootEl, grid) {
+
+		grid.forEach((value, vector) => {
+
+			baseEl.children[vector.y].children[vector.x]
+				.style.fill = value ? 'black' : 'white';
+		});
+
+	}
+
+
+	return {init, update};
+})();
