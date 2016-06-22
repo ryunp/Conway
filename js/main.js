@@ -60,6 +60,7 @@ function viewSelectChanged(e) {
 	scene.clear();
 	scene.setView(Views[e.target.value]);
 	scene.init();
+	scene.update();
 }
 
 
