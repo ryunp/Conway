@@ -1,56 +1,82 @@
 var Views = Views || {};
 
-Views.checkbox = (function() {
-		
 
+Views.circle = (function() {
 
+	var cellSize = 10;
+	var radius = cellSize/2;
+
+	
 	function init(rootEl, grid) {
 
-		// Create base view element
-		baseEl = d3.select(rootEl).append('table');
+		var svgNS = "http://www.w3.org/2000/svg";
+
+		// Create base SVG element
+		baseEl = document.createElementNS(svgNS, "svg");
+		baseEl.setAttribute('width', radius * 2 * grid.width);
+		baseEl.setAttribute('height', radius * 2 * grid.height);
+
+		// Create cells
+		for (var y = 0; y < grid.height; y++) {
+
+			// Group in SVG:G baseEls
+			var g = document.createElementNS(svgNS, "g");
+
+			for (var x = 0; x < grid.width; x++) {
+
+				var circle = document.createElementNS(svgNS, "circle");
+
+				circle.setAttribute('r', radius);
+				circle.setAttribute('cx', radius + (x * radius * 2) );
+				circle.setAttribute('cy', radius + (y * radius * 2));
+				circle.style.fill = "#ff9999";
+				circle.addEventListener('mouseup', toggleCell);
+
+				g.appendChild(circle);
+			}
+
+			baseEl.appendChild(g);
+		}
+
+		// Append SVG and G/Rects to root element
+		rootEl.appendChild(baseEl);
+
+
+		// Callback definition
+		function toggleCell(e) {
+
+			var el = e.target;
+			var v = new Vector(
+				(el.getAttribute('cx') - radius) / (radius * 2),
+				(el.getAttribute('cy') - radius) / (radius * 2));
+
+			console.log(el, v);
+			var newState = !grid.get(v);
+
+			grid.set(v, newState);
+			el.style.fill = newState ? 'black' : 'white';
+		}
 	}
 
 
+	// Utilizing built-in live collections, gg
 	function update(rootEl, grid) {
 
-		var rows = baseEl.selectAll('tr')
-			.data(grid.space);
-		
-		rows.enter()
-			.append('tr');
+		grid.forEach((value, vector) => {
 
-		var cells = rows.selectAll('td')
-			.data( (d) => d );
+			baseEl.children[vector.y].children[vector.x]
+				.style.fill = value ? 'black' : 'white';
+		});
 
-		cells.enter()
-			.append('td')
-			.append('input')
-			.property('type', 'checkbox')
-			.on('click', function(d, x, y) {
-
-				var v = new Vector(x, y);
-				var newState = !grid.get(v);
-
-				grid.set(v, newState);
-
-				d3.select(this)
-					.property('checked', newState);
-			});
-
-		// Update view values with data
-		cells.select('input')
-			.property('checked', (d) => d);
 	}
 
 
 	return {init, update};
 })();
 
-
-
-Views.checkbox_noD3 = (function() {
+Views.checkbox = (function() {
 	
-	var cellSize = 15;
+	var cellSize = 10;
 
 
 	function init(rootEl, grid) {
@@ -59,6 +85,7 @@ Views.checkbox_noD3 = (function() {
 		baseEl = document.createElement('table');
 		baseEl.setAttribute('width', cellSize * grid.width);
 		baseEl.setAttribute('height', cellSize * grid.height);
+		baseEl.setAttribute('cellpadding', 0);
 
 		for (var y = 0; y < grid.height; y++) {
 
@@ -73,6 +100,8 @@ Views.checkbox_noD3 = (function() {
 				
 				var cb = document.createElement('input');
 				cb.setAttribute('type', 'checkbox');
+				cb.style.width = cellSize + 'px';
+				cb.style.height = cellSize + 'px';
 				cb.addEventListener('click', toggleCell);
 				td.appendChild(cb);
 			}
@@ -115,68 +144,9 @@ Views.checkbox_noD3 = (function() {
 
 
 
-Views.svg = (function() {
+Views.square = (function() {
 
-	var cellSize = 15;
-
-
-	function init(rootEl, grid) {
-
-		baseEl = d3.select(rootEl).append('svg')
-		 .attr('width', cellSize * grid.width)
-		 .attr('height', cellSize * grid.height);
-	}
-
-
-	function update(rootEl, grid) {
-
-		// Derp. Since new arrays are assigned in Conway, data is recreated. :(
-		baseEl.selectAll('*').remove();
-
-		/* Handle Rows */
-		// Capture result of view/data staging (list of rows)
-		var rows = baseEl.selectAll('g')
-			.data(grid.space);
-
-		// Check into 'enter' state and create lacking view items (each row)
-		rows.enter()
-			.append('g');
-
-		/* Handle Cols */
-		// Capture result of view/data staging (list of cols)
-		var cells = rows.selectAll('g')
-			.data( (d) => d );
-
-		// Check into 'enter' state and create lacking view items (each col)
-		cells.enter()
-			.append('rect')
-			.attr('x', (d, colIdx, rowIdx) => colIdx * cellSize )
-			.attr('y', (d, colIdx, rowIdx) => rowIdx * cellSize )
-			.attr('width', cellSize).attr('height', cellSize)
-			.on('mouseup', function(d, x, y) {
-
-				var v = new Vector(x, y);
-				var newState = !grid.get(v);
-
-				grid.set(v, newState);
-
-				d3.select(this)
-					.attr('fill', newState ? 'black' : 'white');
-			});
-
-		// Update view values with data
-		cells.attr('fill', (d) => d ? 'black' : 'white' );
-	}
-
-
-	return {init, update};
-})();
-
-
-
-Views.svg_noD3 = (function() {
-
-	var cellSize = 15;
+	var cellSize = 10;
 
 
 	function init(rootEl, grid) {
@@ -201,7 +171,6 @@ Views.svg_noD3 = (function() {
 				rect.setAttribute('width', cellSize);
 				rect.setAttribute('height', cellSize);
 				rect.setAttribute('x', x * cellSize);
-				rect.setAttribute('y', y * cellSize);
 				rect.setAttribute('y', y * cellSize);
 				rect.style.fill = "#ff9999";
 				rect.addEventListener('mouseup', toggleCell);

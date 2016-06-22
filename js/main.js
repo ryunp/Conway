@@ -21,9 +21,9 @@ function init() {
 	function initScene() {
 
 		var el = document.querySelector('#display');
-		var grid = new Grid(45, 30);
+		var grid = new Grid(60, 60);
 		
-		scene = new Scene(el, grid,	Views.checkbox);
+		scene = new Scene(el, grid,	Views.circle);
 		
 		randomizeGridData(scene.grid);
 		scene.init();
