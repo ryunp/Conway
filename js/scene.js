@@ -18,6 +18,16 @@ Scene.prototype.init = function() {
 };
 
 
+Scene.prototype.randomize = function() {
+
+	this.grid.fill( () => randomElement([false, true]) );
+
+	function randomElement(array) {
+
+		return array[Math.floor(Math.random() * array.length)];
+	}
+};
+
 Scene.prototype.clear = function() {
 
 	while (this.rootEl.firstChild)

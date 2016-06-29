@@ -24,8 +24,8 @@ function init() {
 		var grid = new Grid(60, 60);
 		
 		scene = new Scene(el, grid,	Views.circle);
-		
-		randomizeGridData(scene.grid);
+		scene.randomize();
+
 		scene.init();
 		scene.update();
 	}
@@ -37,10 +37,10 @@ function init() {
 
 		document.querySelector('#start').addEventListener('click', start);
 		document.querySelector('#stop').addEventListener('click', stop);
-		document.querySelector('#next').addEventListener('click', turn);
-		document.querySelector('#reset').addEventListener('click', resetGrid);
-		document.querySelector('#fpsSlider').addEventListener('input', e => updateFps(e.target.value));
-		viewSelect.addEventListener('change', viewSelectChanged);
+		document.querySelector('#next').addEventListener('click', step);
+		document.querySelector('#reset').addEventListener('click', onReset);
+		document.querySelector('#fpsSlider').addEventListener('input', onFpsSlider);
+		viewSelect.addEventListener('change', onViewSelection);
 
 		for (var view in Views)
 			viewSelect.insertAdjacentHTML('beforeend', `<option value=${view}>${view}</option>`);
@@ -52,10 +52,15 @@ function init() {
 
 
 /**
- * Display
+ * UI handlers
  */
 
-function viewSelectChanged(e) {
+function onFpsSlider(e) {
+
+	updateFps(e.target.value);
+}
+
+function onViewSelection(e) {
 
 	scene.clear();
 	scene.setView(Views[e.target.value]);
@@ -64,9 +69,9 @@ function viewSelectChanged(e) {
 }
 
 
-function resetGrid() {
+function onReset(e) {
 
-	randomizeGridData(scene.grid);
+	scene.randomize();
 	scene.update();
 }
 
@@ -82,7 +87,7 @@ var timer, prevTime, refreshInterval;
 function start() {
 
 	if (! timer)
-		lifeLoop();
+		stepLoop();
 }
 
 
@@ -93,27 +98,25 @@ function stop() {
 }
 
 
-function turn() {
+function step() {
 
-	Conway.nextGeneration(grid);
-	view.update(grid);
+	Conway.nextGeneration(scene.grid);		
+	scene.update();
 }
 
 
-function lifeLoop(timeStamp) {
+function stepLoop(timeStamp) {
 
 	if (!prevTime)
 		prevTime = timeStamp;
 
 	if (timeStamp - prevTime > refreshInterval) {
 
-		//turn();
-		Conway.nextGeneration(scene.grid);		
-		scene.update();
+		step();
 		prevTime = timeStamp;
 	}
 	
-	timer = requestAnimationFrame(lifeLoop);
+	timer = requestAnimationFrame(stepLoop);
 }
 
 
@@ -122,20 +125,4 @@ function updateFps(newFps) {
 	fps = newFps;
 	refreshInterval = 1000 / fps;
 	document.querySelector('#fpsData').textContent = newFps;
-}
-
-
-
-/**
- * Misc
- */
-
-function randomizeGridData(grid) {
-
-	grid.fill( () => randomElement([false, true]) );
-
-	function randomElement(array) {
-
-		return array[Math.floor(Math.random() * array.length)];
-	}
 }
