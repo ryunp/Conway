@@ -11,61 +11,50 @@ var Conway = {
 
   /**
    * Provides the next step of life
-   * @param  {Grid} curGen Grid object
-   * @return {Grid}        Same Grid object given
+   * @param  {Grid}  Gameboard's Grid object
+   * @return {Grid}  Same gameboard with updated grid
    */
-  nextGeneration: function nextGeneration(curGen) {
+  nextGeneration: function nextGeneration(curGrid) {
 
-    var nextGen = new Grid(curGen.width, curGen.height);
+    var newGrid = new Grid(curGrid.width, curGrid.height);
 
-    curGen.forEach( (state, vector) => {
+    curGrid.forEach( function(state, vector) {
 
-      var neighborCount = countNeighbors(curGen, vector, 1);
+      var neighborsAlive = countNeighbors(curGrid, vector, 1);
 
       // Stay alive or revive if 3 neighbors
-      if (neighborCount == 3) {
-        nextGen.set(vector, Conway.States.ALIVE);
+      if (neighborsAlive == 3) {
+        newGrid.set(vector, Conway.States.ALIVE);
         return;
       }
 
       // Stay alive if 2 neighbors
-      if (state == Conway.States.ALIVE && (neighborCount == 2)) {
-        nextGen.set(vector, Conway.States.ALIVE);
+      if (state == Conway.States.ALIVE && (neighborsAlive == 2)) {
+        newGrid.set(vector, Conway.States.ALIVE);
         return;
       }
 
       // Stay dead or die
-      nextGen.set(vector, Conway.States.DEAD);
+      newGrid.set(vector, Conway.States.DEAD);
     });
 
-    curGen.space = nextGen.space;
+    curGrid.space = newGrid.space;
 
 
     /**
      * Counts alive neighbors within radius including diagonals
      * 
-     * @param  {Grid}   grid   Grid object
-     * @param  {Vector} vector X,Y coordinate object
-     * @return {int}           Number of alive neighbors
+     * @param  {Grid}  grid  Grid object
+     * @param  {Vector}  vector  X,Y coordinate object
+     * @return {int}  Number of alive neighbors
      */
     function countNeighbors(grid, vector, radius) {
 
-      var count = 0;
+      return grid.getNeighbors(vector, radius).reduce(countAlive, 0);
 
-      for (var yOffset = -radius; yOffset <= radius; yOffset++) {
-        for (var xOffset = -radius; xOffset <= radius; xOffset++) {
-
-          if (xOffset == 0 && yOffset == 0)
-            continue;
-
-          var neighbor = new Vector(vector.x + xOffset, vector.y + yOffset);
-
-          if (grid.get(neighbor) == Conway.States.ALIVE)
-            count++;
-        }
+      function countAlive(total, state) {
+        return total + (state == Conway.States.ALIVE ? 1 : 0);
       }
-
-      return count;
     }
   }
 };

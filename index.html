@@ -1,19 +1,17 @@
 <html>
 <head>
-  <!--<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>-->
-  <link rel="stylesheet" href="https://necolas.github.io/normalize.css/4.1.1/normalize.css">
+  <!-- <link rel="stylesheet" href="https://necolas.github.io/normalize.css/4.1.1/normalize.css"> -->
   <link rel="stylesheet" href="style.css">
   <script type="text/javascript" src="js/conway.js"></script>
   <script type="text/javascript" src="js/grid.js"></script>
   <script type="text/javascript" src="js/vector.js"></script>
   <script type="text/javascript" src="js/views.js"></script>
-  <script type="text/javascript" src="js/scene.js"></script>
+  <script type="text/javascript" src="js/board.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
 </head>
 <body>
   <div id="container">
     <h1>Conway</h1>
-    <div id="display"></div>
     <div id="controls">
       <button id="start">start</button>
       <button id="stop">stop</button>
@@ -22,10 +20,13 @@
       <select id="viewSelection"></select>
       <input id="fpsSlider" type="range" min="1" max="30" value="20"><span id="fpsData">2</span>
     </div>
+    <br>
+    <div id="display"></div>
   </div>
   
   <script>
     init();
   </script>
+
 </body>
 </html>
