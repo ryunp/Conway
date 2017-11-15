@@ -1,11 +1,6 @@
 # conway
 Conway GoL implementation
 
-Currently working on a clean view implementing framework of sorts.
-
-### View goals:
- - SVG
- - HTML
- - Canvas
+Janky SVG and HTML 'views'.
 
 View at https://ryunp.github.io/conway/
