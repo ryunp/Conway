@@ -8,10 +8,7 @@ function Grid(width, height) {
 
   this.width = width;
   this.height = height;
-  this.space = new Array(height);
-
-  for (var i = 0; i < this.height; i++)
-    this.space[i] = new Array(width);
+  this.space = new Array(height).fill(new Array(width));
 }
 
 
