@@ -5,10 +5,11 @@
  * @param {int}  height  Number of rows
  */
 function Grid(width, height) {
-
   this.width = width;
   this.height = height;
-  this.space = new Array(height).fill(new Array(width));
+  this.space = new Array(height);
+  for (var i = 0; i < this.height; i++)
+    this.space[i] = new Array(width);
 }
 
 
@@ -18,7 +19,6 @@ function Grid(width, height) {
  * @param {value}  value   New value for cell
  */
 Grid.prototype.set = function set(vector, value) {
-
   if (! this.isInside(vector))
     return null;
 
@@ -32,7 +32,6 @@ Grid.prototype.set = function set(vector, value) {
  * @return {boolean}  Value of cell
  */
 Grid.prototype.get = function get(vector) {
-
   if (! this.isInside(vector))
     return null;
 
@@ -47,7 +46,6 @@ Grid.prototype.get = function get(vector) {
  * @return {Array}  List of neighboring values
  */
 Grid.prototype.getNeighbors = function getNeighbors(vector, radius) {
-
   var neighbors = [];
 
   for (var yOffset = -radius; yOffset <= radius; yOffset++) {
@@ -74,7 +72,6 @@ Grid.prototype.getNeighbors = function getNeighbors(vector, radius) {
  * @param  {Object}   ctx  Context for 'this'
  */
 Grid.prototype.fill = function fill(fn, ctx) {
-
   for (var y = 0; y < this.height; y++)
     for (var x = 0; x < this.width; x++)
       this.space[y][x] = fn.call(ctx);
@@ -89,7 +86,6 @@ Grid.prototype.fill = function fill(fn, ctx) {
  * @param  {Object}  ctx  Context for 'this'
  */
 Grid.prototype.forEach = function forEach(fn, ctx) {
-
   for (var y = 0; y < this.height; y++)
     for (var x = 0; x < this.width; x++)
       fn.call(ctx, this.space[y][x], new Vector(x, y));
@@ -102,7 +98,6 @@ Grid.prototype.forEach = function forEach(fn, ctx) {
  * @return {boolean}           true or false
  */
 Grid.prototype.isInside = function(vector) {
-
-  return vector.x >= 0 && vector.x < this.width &&
-    vector.y >= 0 && vector.y < this.height;
+  return (vector.x >= 0 && vector.x < this.width &&
+    vector.y >= 0 && vector.y < this.height);
 };

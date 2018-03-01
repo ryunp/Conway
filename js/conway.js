@@ -15,7 +15,6 @@ var Conway = {
    * @return {Grid}  Same gameboard with updated grid
    */
   nextGeneration: function nextGeneration(curGrid) {
-
     var newGrid = new Grid(curGrid.width, curGrid.height);
 
     curGrid.forEach( function(state, vector) {
@@ -49,7 +48,6 @@ var Conway = {
      * @return {int}  Number of alive neighbors
      */
     function countNeighbors(grid, vector, radius) {
-
       return grid.getNeighbors(vector, radius).reduce(countAlive, 0);
 
       function countAlive(total, state) {

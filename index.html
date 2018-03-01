@@ -2,25 +2,69 @@
 <head>
   <!-- <link rel="stylesheet" href="https://necolas.github.io/normalize.css/4.1.1/normalize.css"> -->
   <link rel="stylesheet" href="style.css">
-  <script type="text/javascript" src="js/conway.js"></script>
-  <script type="text/javascript" src="js/grid.js"></script>
-  <script type="text/javascript" src="js/vector.js"></script>
-  <script type="text/javascript" src="js/views.js"></script>
-  <script type="text/javascript" src="js/board.js"></script>
-  <script type="text/javascript" src="js/main.js"></script>
+  <script src="js/conway.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/vector.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/main.js"></script>
+
+  <style type="text/css">
+    #controls {
+    }
+
+    #display {
+      margin-top: 10px;
+    }
+
+    .dimensions {
+      width: 40px;
+    }
+
+    .control-group {
+      height: 75px;
+      vertical-align: top; 
+      display: inline-block;
+    }
+      .group-label {
+        text-align: center;
+      }
+      .group-controls {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid black;
+      }
+  </style>
 </head>
 <body>
   <div id="container">
     <h1>Conway</h1>
     <div id="controls">
-      <button id="start">start</button>
-      <button id="stop">stop</button>
-      <button id="next">next</button>
-      <button id="reset">reset</button>
-      <select id="viewSelection"></select>
-      <input id="fpsSlider" type="range" min="1" max="30" value="20"><span id="fpsData">2</span>
+      <div class="control-group">
+        <div class="group-label">Gameboard</div>
+        <div class="group-controls">
+          <button id="start">start</button>
+          <button id="stop">stop</button>
+          <button id="next">next</button>
+          <button id="reset">reset</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="group-label">Renderer</div>
+        <div class="group-controls">
+        <select id="viewSelection"></select>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="group-label">Size & Rate</div>
+        <div class="group-controls">
+          <input id="gridWidth" class="dimensions" value=60> x <input id="gridHeight" class="dimensions" value=30> <input id="fpsSlider" type="range" min="1" max="30" value="20"><span id="fpsData">20</span> fps
+        </div>
+      </div>
     </div>
-    <br>
+
     <div id="display"></div>
   </div>
   

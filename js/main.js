@@ -1,17 +1,12 @@
-var board, timer, prevTime, refreshInterval, fps = 20;
-
+var board, timer, prevTime, fps, areaLimit = 10000;
 
 function init() {
-
 	// Board
 	var el = document.querySelector('#display');
-	var grid = new Grid(60, 60);
+	var grid = new Grid(60, 30);
 	
 	board = new Board(el, grid,	Views.circle);
-	board.randomize();
-
-	board.init();
-	board.update();
+	board.reset();
 
 
 	// UI
@@ -27,7 +22,10 @@ function init() {
 	for (var view in Views)
 		viewSelect.insertAdjacentHTML('beforeend', `<option value=${view}>${view}</option>`);
 	
-	updateFps(fps);
+	document.querySelector('#gridWidth').addEventListener('blur', onGridWidth);
+	document.querySelector('#gridHeight').addEventListener('blur', onGridHeight);
+
+	updateFps(20);
 }
 
 
@@ -37,23 +35,49 @@ function init() {
  */
 
 function onFpsSlider(e) {
-
 	updateFps(e.target.value);
 }
 
 function onViewSelection(e) {
-
 	board.clear();
 	board.setView(Views[e.target.value]);
 	board.init();
 	board.update();
 }
 
-
 function onReset(e) {
-
-	board.randomize();
+	board.randomize([false, true]);
 	board.update();
+}
+
+function onGridWidth(e) {
+	const newWidth = e.target.value;
+	const area = newWidth * board.grid.height;
+
+	if (newWidth != board.grid.width) {
+		if ((area > 0) && (area <= areaLimit)) {
+			board.setGrid(new Grid(newWidth, board.grid.height));
+			board.reset();
+		} else {
+			e.target.value = board.grid.width;
+			console.log(`Area limited to 1 - ${areaLimit}, ${area} is outside range.`);
+		}
+	}
+}
+
+function onGridHeight(e) {
+	const newHeight = e.target.value;
+	const area = board.grid.width * newHeight;
+
+	if (newHeight != board.grid.height) {
+		if ((area > 0) && (area <= areaLimit)) {
+			board.setGrid(new Grid(board.grid.width, newHeight));
+			board.reset();
+		} else {
+			e.target.value = board.grid.height;
+			console.log(`Area limited to 1 - ${areaLimit}, ${area} is outside range.`);
+		}
+	}
 }
 
 
@@ -63,32 +87,30 @@ function onReset(e) {
  */
 
 function start() {
-
-	if (! timer)
+	if (!timer)
 		stepLoop();
 }
 
-
 function stop() {
-
-	cancelAnimationFrame(timer);
-	timer = null;
+	if (timer) {
+		cancelAnimationFrame(timer);
+		timer = null;
+	}
 }
 
-
 function step() {
-
-	Conway.nextGeneration(board.grid);		
+	stop();
+	Conway.nextGeneration(board.grid);
 	board.update();
 }
 
-
 function stepLoop(timeStamp) {
-
 	if (!prevTime)
 		prevTime = timeStamp;
 
-	if (timeStamp - prevTime > refreshInterval) {
+	var delta = timeStamp - prevTime;
+	var spf = 1000 / fps;
+	if (delta > spf) {
 
 		step();
 		prevTime = timeStamp;
@@ -97,10 +119,7 @@ function stepLoop(timeStamp) {
 	timer = requestAnimationFrame(stepLoop);
 }
 
-
 function updateFps(newFps) {
-
 	fps = newFps;
-	refreshInterval = 1000 / fps;
 	document.querySelector('#fpsData').textContent = newFps;
 }
